@@ -1,21 +1,21 @@
 import React from "react";
 import { AppContext } from "./appContext";
 import zhCN from "antd/lib/locale/zh_CN";
-import { ConfigProvider as antdConfigProvider } from "@src/index.js";
+import { ConfigProvider as AntdConfigProvider } from "@src/index.js";
 
 const antdDefaultConfig = {
     prefixCls: "linkfin",
     locale: zhCN
 };
 
-antdConfigProvider.config({
+AntdConfigProvider.config({
     prefixCls: "linkfin"
 });
 
-export default ({ children, antd, ...other }) => {
+export default ({ children, antdConfig, ...other }) => {
     return (
-        <antdConfigProvider {...{ ...antdDefaultConfig, ...antd }}>
+        <AntdConfigProvider {...{ ...antdDefaultConfig, ...antdConfig }}>
             <AppContext.Provider value={{ ...other }}>{children}</AppContext.Provider>
-        </antdConfigProvider>
+        </AntdConfigProvider>
     );
 };

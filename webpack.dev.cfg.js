@@ -3,6 +3,8 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const ESLintPlugin = require("eslint-webpack-plugin");
+// const TerserPlugin = require("terser-webpack-plugin");
+// const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const handler = (percentage, message, ...args) => {
     console.info(`${(percentage * 100).toFixed(2)}%`, message, ...args);
 };
@@ -138,6 +140,18 @@ module.exports = {
             "@assets": path.resolve(__dirname, "./src/assets")
         }
     },
+    // optimization: {
+    //     minimizer: [
+    //         new CssMinimizerPlugin(),
+    //         new TerserPlugin({
+    //             parallel: true
+    //         })
+    //         // new CompressionPlugin()
+    //     ],
+    //     splitChunks: {
+    //         chunks: "all"
+    //     }
+    // },
     devServer: {
         port: 8881, // 端口
         host: "localhost",

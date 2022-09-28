@@ -1,6 +1,8 @@
 import { matchPath } from "react-router-dom";
 import history from "history/browser";
+import { v5 as uuidv5 } from "uuid";
 import BigNumber from "bignumber.js";
+
 /**
  * 检查权限
  * @param {*} check 需要检查的权限
@@ -175,6 +177,7 @@ export const replaceUrl = (url, sync) => {
     }
 };
 
+// 初始化路由参数
 export const initRouteAttrbutes = (routes, reset = { logined: false }) => {
     let out = null;
     out = routes.map(route => {
@@ -187,16 +190,13 @@ export const initRouteAttrbutes = (routes, reset = { logined: false }) => {
             auths: Array.from(new Set([...(route.auths || []), ...(reset.auths || [])]))
         };
         if (_route.children) {
-            for (let i = 0; i < _route.children.length; i++) {
-                _route.children[i] = format(_route.children[i], {
-                    logined: _route.logined || false,
-                    fullPathName: _route.fullPathName,
-                    auths: _route.auths
-                });
-            }
+            _route.children = initRouteAttrbutes(_route.children, {
+                logined: _route.logined || false,
+                fullPathName: _route.fullPathName,
+                auths: _route.auths
+            });
         }
         return _route;
     });
-
     return out;
 };

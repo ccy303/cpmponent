@@ -1,5 +1,5 @@
 import React from "react";
-
+import { NoAuth, Load, CLayout } from "@src/index.js";
 export default {
     rootPath: "/home", // 跟路由
     sliderTheme: "dark", // 侧边菜单主题
@@ -20,7 +20,8 @@ export default {
             return err.response.data.message;
         }
     },
-    antd: {},
+    // antd 配置
+    antdConfig: {},
     // 获取用户信息方式
     getUserFun: async () => {
         return new Promise((resolve, reject) => {
@@ -35,8 +36,9 @@ export default {
     },
     // 用户信息获取失败回调，配置此函数后将不会执行框架自带错误处理函数，用户需自己处理后续异常，err:错误信息
     // getUserFunErr: err => {},
-    // 应用获取过用户信息后，即将渲染页面前执行，用于设置全局共享数据,全局共享数据会注入到页面组件的props中的gStore.g_customData中，args用户数据 return { ...自定义全局数据 }
+    // 应用获取过用户信息后，渲染页面前执行，用于设置全局共享数据,全局共享数据会注入到页面组件的props中的gStore.g_customData中，args用户数据 return { ...自定义全局数据 }
     appWillMount: async args => {},
+    // App header
     header: {
         logo: require("@assets/logo_dx.png"),
         // logo: (
@@ -50,25 +52,26 @@ export default {
         // userInfoDom: props => {}, // 自定义用户信息渲染，不可和userInfoDataIndex公用，props含全部数据
         logoutFun: props => {} // 登出函数props含全部数据
     },
+    // 路由列表
     routes: [
         {
             path: "/login",
             title: "登录",
             menu: false,
-            component: "../components/business/login"
+            component: Load(() => import("./pages/page1"))
         },
         {
             path: "/home",
             title: "一级路由",
             menu: false,
-            component: "../components/business/home"
+            component: Load(() => import("./pages/page2"))
         },
         {
             title: "工作台",
             menu: false,
             path: "/admin",
             logined: true,
-            layout: "Layout",
+            layout: CLayout,
             breadcrumb: false,
             children: [
                 {
@@ -76,7 +79,7 @@ export default {
                     title: "一级路由",
                     menu: true,
                     logined: true,
-                    component: "../components/business/pageIndex",
+                    component: Load(() => import("./pages/page3")),
                     breadcrumb: [
                         {
                             path: "",
@@ -111,13 +114,13 @@ export default {
                             path: "/page1",
                             title: "form表单",
                             menu: true,
-                            component: "../components/business/form"
+                            component: Load(() => import("./pages/page4"))
                         },
                         {
                             path: "/page2",
                             title: "图片",
                             menu: true,
-                            component: "../components/business/imageColor"
+                            component: Load(() => import("./pages/page1"))
                         }
                     ]
                 },
@@ -136,7 +139,7 @@ export default {
                                     path: "/page1",
                                     title: "三级路由",
                                     menu: true,
-                                    component: "../components/business/page1"
+                                    component: Load(() => import("./pages/page2"))
                                 }
                             ]
                         }
@@ -153,14 +156,14 @@ export default {
                             path: "/page1",
                             title: "列表",
                             menu: true,
-                            component: "../components/business/list"
+                            component: Load(() => import("./pages/page3"))
                         },
                         {
                             path: "/page1/:id",
                             title: "二级路由1",
                             activePath: "/admin/noMenuRoute/page1",
                             menu: false,
-                            component: "../components/business/page1"
+                            component: Load(() => import("./pages/page3"))
                         }
                     ]
                 },
@@ -170,7 +173,7 @@ export default {
                     menu: true,
                     logined: true,
                     auths: ["auth4", "auth2 & auth3"],
-                    component: "../components/business/home"
+                    component: Load(() => import("./pages/page4"))
                 }
             ]
         },
@@ -178,8 +181,8 @@ export default {
             title: "403",
             menu: false,
             path: "/403",
-            layout: "Layout",
-            component: "../components/basic/noAuth"
+            layout: CLayout,
+            component: NoAuth
         }
     ]
 };

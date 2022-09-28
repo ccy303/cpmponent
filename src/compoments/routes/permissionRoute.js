@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from "react";
 import { AppContext } from "@compoments/appProvider/appContext";
-// import { appConfig } from "@root/appConfig";
 import gStore from "@src/store/global";
 import NoMatch from "@compoments/noMatch";
-import { checkAuth, getRouteByPath, findRoute } from "@tools/index";
+import { checkAuth, getRouteByPath, findRoute, initRouteAttrbutes } from "@tools/index";
 import { useLocalStore, Observer } from "mobx-react-lite";
+
 import {
     HashRouter,
     Routes,
@@ -14,7 +14,9 @@ import {
     useLocation,
     Navigate
 } from "react-router-dom";
+
 import { runInAction } from "mobx";
+
 const renderRoute = routes => {
     return (
         <>
@@ -27,7 +29,6 @@ const renderRoute = routes => {
                     children,
                     logined
                 } = route;
-
                 let { path } = route;
                 path = path.replace(/\//, "");
                 const CheckAuth = () => {
@@ -85,6 +86,7 @@ const renderRoute = routes => {
 };
 
 const Main = props => {
+    const { getUserFun, appWillMount, rootPath, getUserFunErr, routes } = useContext(AppContext);
     const store = useLocalStore(() => ({
         state: false
     }));
@@ -94,24 +96,23 @@ const Main = props => {
         (async () => {
             try {
                 let uInfo = {};
-                uInfo = await appConfig.getUserFun();
+                uInfo = await getUserFun?.();
                 runInAction(() => {
                     gStore.g_userInfo = uInfo.userInfo;
                     gStore.g_userAuth = uInfo.auth;
                 });
                 try {
-                    const res = await appConfig?.appWillMount({ ...uInfo });
+                    const res = await appWillMount?.({ ...uInfo });
                     gStore.g_customData = res;
                 } catch (err) {
                     throw new Error(err);
                 }
-                (location.pathname === "/login" || location.pathname === "/") &&
-                    navigate(appConfig.rootPath);
+                (location.pathname === "/login" || location.pathname === "/") && navigate(rootPath);
                 store.state = true;
             } catch (err) {
                 store.state = true;
-                if (appConfig.getUserFunErr) {
-                    appConfig.getUserFunErr?.(err);
+                if (getUserFunErr) {
+                    getUserFunErr?.(err);
                     return;
                 }
                 let flag = 0;
@@ -120,22 +121,19 @@ const Main = props => {
                     const res = getRouteByPath(routes[flag], location.pathname);
                     if (!res) {
                         continue;
-                    } else {
-                        break;
                     }
-                    // if (!res.route.logined) {
-                    //     // navigate(location.pathname);
-                    //     break;
-                    // } else {
-                    //     // 查找第一个不需要登录就能查看的路由
-                    //     const target = findRoute(
-                    //         routes.filter(v => v.path !== "/login"),
-                    //         "logined",
-                    //         false
-                    //     );
-                    //     navigate(target?.fullPathName || "/login");
-                    //     break;
-                    // }
+                    if (!res.route.logined) {
+                        navigate(location.pathname);
+                    } else {
+                        // 查找第一个不需要登录就能查看的路由
+                        const target = findRoute(
+                            routes.filter(v => v.path !== "/login"),
+                            "logined",
+                            false
+                        );
+                        navigate(target?.fullPathName || "/login");
+                    }
+                    break;
                 }
                 if (flag == routes.length) {
                     navigate("/login");
@@ -143,18 +141,18 @@ const Main = props => {
             }
         })();
     }, []);
-    location.pathname === "/" && store.state && navigate(`${appConfig.rootPath}`);
+    location.pathname === "/" && store.state && navigate(rootPath);
     return <Observer>{() => <>{store.state ? <Outlet /> : <></>}</>}</Observer>;
 };
 
 const PermissionRoute = props => {
-    const appContext = useContext(AppContext);
-    console.log(123, appContext);
+    const { routes: R } = useContext(AppContext);
+    const routes = initRouteAttrbutes(R);
     return (
         <HashRouter>
             <Routes>
                 <Route path='/' element={<Main />}>
-                    {/* {renderRoute(routes)} */}
+                    {renderRoute(routes)}
                     <Route path='*' element={<NoMatch />} />
                 </Route>
             </Routes>

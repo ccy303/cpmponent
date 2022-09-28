@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import Header from "../header";
 import Menu from "../menu";
-import { Layout, Breadcrumb, Spin } from "antd";
+import { Layout, Breadcrumb, Spin } from "@src/index.js";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { Observer, useLocalStore, observer } from "mobx-react-lite";
-import { getBread, getRouteByPath } from "@utils/index";
+import { getBread, getRouteByPath } from "@tools/index";
+import { AppContext } from "@compoments/appProvider/appContext";
 import gStore from "@src/store/global";
-import { appConfig } from "@root/appConfig";
 import style from "./styles.less";
 
 const BreadcrumbLink = props => {
@@ -39,11 +39,14 @@ const SpinC = observer(() => {
 });
 
 const LayoutUI = props => {
-    const { targetRoute, gStore } = props;
-    const { g_userInfo, g_loading } = gStore;
+    const { targetRoute } = props;
+
+    const { sliderTheme } = useContext(AppContext);
+
     const store = useLocalStore(() => ({
         breadcrumb: []
     }));
+
     const location = useLocation();
 
     useEffect(() => {
@@ -65,7 +68,7 @@ const LayoutUI = props => {
                         backgroundColor: {
                             dark: "#1e1e2d",
                             light: "#fff"
-                        }[appConfig.sliderTheme || "light"]
+                        }[sliderTheme || "light"]
                     }}
                 >
                     <Menu {...props} />

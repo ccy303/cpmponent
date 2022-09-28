@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import style from "./styles.less";
 import { Link } from "react-router-dom";
 import { Observer } from "mobx-react-lite";
-import { appConfig } from "@root/appConfig";
+import { AppContext } from "@compoments/appProvider/appContext";
+
 const Header = props => {
-    const { header } = appConfig;
+    const { header } = useContext(AppContext);
+
     const { gStore } = props;
+
     return (
         <div className={style.warp}>
             <div className={style.left}>
