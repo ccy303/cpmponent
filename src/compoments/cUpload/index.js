@@ -60,10 +60,9 @@ export default props => {
             return;
         }
         option.file = tag || option.file;
-        console.log(option);
         const formdata = new FormData();
         formdata.append("file", option.file);
-
+        formdata.append("data", option.data);
         // 发送ajax请求
         loading &&
             (gStore.g_loading = {
