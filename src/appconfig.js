@@ -4,10 +4,10 @@ export default {
     rootPath: "/home", // 跟路由
     sliderTheme: "dark", // 侧边菜单主题
     // 框架会自动抛出错误信息和message提示，不会处理成功提示，http请求定义时，通过 header 设置 NO-E-MSG：true/false 配置是否由框架提示错误信息
-    http: {
+    httpCfg: {
         axiosCfg: {}, // axios 配置
-        // http 请求 返回请求体前执行,不支持 异步 函数
-        httpWILLResponse: response => {
+        // http 请求响应拦截
+        responseIntercept: response => {
             const { data, headers } = response;
             return response.headers["x-total-count"]
                 ? { data: data, total: headers["x-total-count"] }
@@ -15,9 +15,13 @@ export default {
         },
         // http 请求抛出异常之前前执行,不支持异步函数
         httpOnReject: err => {},
-        // 定义错误提示
+        // 设置全局错误提示
         formatErrMsg: err => {
-            return err.response.data.message;
+            const { status, data } = err.response;
+            if (status == "404") {
+                return "接口不存在";
+            }
+            return data.message;
         }
     },
     // antd 配置

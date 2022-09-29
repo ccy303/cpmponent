@@ -67,3 +67,6 @@ export { default as version } from "@compoments/antd/version";
 export { default as NoAuth } from "@compoments/noAuth";
 export { default as Load } from "@compoments/loadable";
 export { default as CLayout } from "@compoments/layout";
+export { default as CUpload } from "@compoments/cUpload";
+
+export { useAxios } from "@compoments/hook";

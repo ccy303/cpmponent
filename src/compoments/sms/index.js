@@ -1,11 +1,21 @@
 import React, { useEffect } from "react";
-import { Button, Input, Space, message } from "antd";
+import { Button, Input, Space, message, useAxios } from "@src/index.js";
 import { useLocalStore, Observer } from "mobx-react-lite";
-import { getSms } from "@src/http/public";
 import { runInAction } from "mobx";
 let TIMER = null;
 export default props => {
-    const { value, onChange, id, phone, disabled, busType, costomFun, queryData } = props;
+    const {
+        value,
+        onChange,
+        id,
+        phone,
+        disabled,
+        customFun,
+        params,
+        getSmsUrl,
+        getSmsMeth = "get"
+    } = props;
+    const axios = useAxios();
     const store = useLocalStore(() => {
         return {
             text: "获取验证码",
@@ -15,21 +25,25 @@ export default props => {
         };
     });
 
-    const getSmsFun = async () => {
-        if (!phone && !costomFun) {
+    const getSms = async () => {
+        if (!phone && !customFun) {
             return message.error("手机号不能为空");
         }
         // 获取短信认证码
         store.btnDisabled = true;
         try {
-            await (costomFun || getSms)?.(
-                queryData || {
-                    bus_type: busType,
-                    mobile: phone
-                }
-            );
+            if (getSmsUrl) {
+                const cfg = {
+                    method: getSmsMeth,
+                    url: `${getSmsUrl}`
+                };
+                getSmsMeth === "get" ? (cfg.params = params) : (cfg.data = params);
+                await axios(cfg);
+            } else {
+                await customFun?.();
+                message.success("发送成功");
+            }
             setText();
-            message.success("发送成功");
         } catch (err) {
             store.btnDisabled = false;
         }
@@ -78,7 +92,7 @@ export default props => {
                         <Button
                             disabled={store.btnDisabled || disabled}
                             type='primary'
-                            onClick={getSmsFun}
+                            onClick={getSms}
                         >
                             {typeof store.text == "number"
                                 ? `${store.text}s后重新获取`
