@@ -1,17 +1,25 @@
 import React, { useEffect } from "react";
-import { Upload, Button, message } from "@src/index.js";
+import { Upload, Button, message, useAxios } from "@src/index.js";
 import { file as fileValid } from "@tools/valid";
 import { VerticalAlignTopOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import { useLocalStore, Observer } from "mobx-react-lite";
 // import { upload, filePrev } from "@src/http/public";
-import { toJS } from "mobx";
+// import { toJS } from "mobx";
 import gStore from "@src/store/global";
 import style from "./index.less";
+
+const getBase64 = file =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+
 export default props => {
     const {
         onChange = () => {},
-        beforeUpload = () => {},
-        customUpload,
+        customRequest,
         afterUpload = () => {},
         afterRemove = () => {},
         fileSize = 50,
@@ -20,12 +28,16 @@ export default props => {
         maxCount = Number.MAX_VALUE,
         fileList = [],
         value: formValue,
-        fileUploadType = "",
         id,
-        btnText = "上传",
+        btnText = "文件上传",
         loading = true,
+        action,
+        data,
+        method = "post",
         ...other
     } = props;
+
+    const axios = useAxios();
 
     const store = useLocalStore(() => {
         return { fileList: [] };
@@ -38,49 +50,96 @@ export default props => {
         }
     }, [fileList, formValue]);
 
-    const beforeUploadFun = async file => {
+    const vailArrFun = async file => {
         try {
             const vailArr = [fileValid.checkSize(file, fileSize)];
-            if (fileType) {
-                vailArr.push(fileValid.checkType(file, fileType));
-            }
+            fileType && vailArr.push(fileValid.checkType(file, fileType));
             await Promise.all(vailArr);
+            Promise.resolve();
         } catch (err) {
             message.warning(err);
-            return false;
+            Promise.reject();
         }
     };
 
     /**
      * @param option antd 返回参数
      */
-    const customRequest = async option => {
-        const tag = await beforeUpload(option.file);
-        if (tag === false) {
-            return;
-        }
-        option.file = tag || option.file;
-        const formdata = new FormData();
-        formdata.append("file", option.file);
-        formdata.append("data", option.data);
-        // 发送ajax请求
+    const uploadFun = async option => {
+        console.log(option);
         loading &&
             (gStore.g_loading = {
                 visible: true,
                 text: "文件上传中..."
             });
-        // const res = await upload(fileUploadType, formdata);
-        loading &&
-            (gStore.g_loading = {
-                visible: false,
-                text: ""
-            });
-        const file = {
-            name: option.file.name
-            // uid: res.data_id
-            // thumbUrl: filePrev(res.data_id),
-            // url: filePrev(res.data_id)
-        };
+
+        await vailArrFun(option.file);
+        const formdata = new FormData();
+        formdata.append("file", option.file);
+        data && formdata.append("data", data);
+
+        if (customRequest) {
+            await customRequest(option);
+            loading &&
+                (gStore.g_loading = {
+                    visible: false,
+                    text: ""
+                });
+            return;
+        }
+
+        if (action) {
+            try {
+                const res = await axios({
+                    method: method,
+                    url: action,
+                    data: formdata,
+                    headers: { "Content-Type": "multipart/form-data" }
+                });
+                const file = {
+                    name: option.file.name,
+                    // uid: res.data_id
+                    thumbUrl: await getBase64(option.file)
+                    // url: filePrev(res.data_id)
+                };
+                console.log(file);
+                message.success("上传成功");
+                store.fileList = [...store.fileList, file];
+                loading &&
+                    (gStore.g_loading = {
+                        visible: false,
+                        text: ""
+                    });
+            } catch (err) {
+                loading &&
+                    (gStore.g_loading = {
+                        visible: false,
+                        text: ""
+                    });
+            }
+            return;
+        }
+
+        // console.log(123456, option);
+
+        // // 发送ajax请求
+        // loading &&
+        //     (gStore.g_loading = {
+        //         visible: true,
+        //         text: "文件上传中..."
+        //     });
+        // // const res = await upload(fileUploadType, formdata);
+        // loading &&
+        //     (gStore.g_loading = {
+        //         visible: false,
+        //         text: ""
+        //     });
+        // const file = {
+        //     name: option.file.name
+        //     // uid: res.data_id
+        //     // thumbUrl: filePrev(res.data_id),
+        //     // url: filePrev(res.data_id)
+        // };
 
         // onChange?.([...toJS(store.fileList), { ...file, ...res }]);
         // afterUpload?.({ ...file, ...res }, store.fileList);
@@ -95,11 +154,18 @@ export default props => {
     };
 
     const onRemove = file => {
-        onChange?.(undefined);
-        afterRemove?.(file);
-        if (!fileList) {
-            store.fileList = [...store.fileList.filter(v => v.uid != file.uid)];
-        }
+        // onChange?.(undefined);
+        // afterRemove?.(file);
+        // if (!fileList) {
+        //     store.fileList = [...store.fileList.filter(v => v.uid != file.uid)];
+        // }
+    };
+
+    const change = ({ file, fileList, event }) => {
+        // console.log(file);
+        // console.log(fileList);
+        // console.log(event);
+        // onChange();
     };
 
     return (
@@ -116,8 +182,8 @@ export default props => {
                             onRemove={onRemove}
                             listType={listType}
                             fileList={store.fileList}
-                            customRequest={customRequest}
-                            beforeUpload={beforeUploadFun}
+                            customRequest={uploadFun}
+                            onChange={change}
                             {...other}
                         >
                             {listType == "text" || listType == "picture" ? (

@@ -1,6 +1,6 @@
 import React from "react";
 import Sms from "@compoments/sms";
-import { Row, Col, CUpload, Divider } from "@src/index.js";
+import { Row, Col, CUpload, Divider, Upload } from "@src/index.js";
 export default props => {
     return (
         <>
@@ -14,21 +14,32 @@ export default props => {
             <Row>
                 <Col>文件上传(text):</Col>
                 <Col>
-                    <CUpload data={{ a: 1234 }} action='/baidu' />
+                    <CUpload
+                        data={{ a: 1234 }}
+                        action='http://127.0.0.1:4523/m1/832302-0-default/test'
+                    />
                 </Col>
             </Row>
             <Divider />
             <Row>
                 <Col>文件上传(picture):</Col>
                 <Col>
-                    <CUpload listType='picture' />
+                    <CUpload
+                        listType='picture'
+                        customRequest={a => {
+                            console.log(a);
+                        }}
+                    />
                 </Col>
             </Row>
             <Divider />
             <Row>
                 <Col>文件上传(picture-card):</Col>
                 <Col>
-                    <CUpload listType='picture-card' />
+                    <CUpload
+                        listType='picture-card'
+                        action='http://127.0.0.1:4523/m1/832302-0-default/test'
+                    />
                 </Col>
             </Row>
         </>
