@@ -1,5 +1,6 @@
 import React from "react";
-import { NoAuth, Load, CLayout } from "@src/index.js";
+import { NoAuth, Load, CLayout, useAxios } from "@src/index.js";
+
 export default {
     rootPath: "/home", // 跟路由
     sliderTheme: "dark", // 侧边菜单主题

@@ -3,8 +3,7 @@ import { Upload, Button, message, useAxios } from "@src/index.js";
 import { file as fileValid } from "@tools/valid";
 import { VerticalAlignTopOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import { useLocalStore, Observer } from "mobx-react-lite";
-// import { upload, filePrev } from "@src/http/public";
-// import { toJS } from "mobx";
+import { toJS, autorun } from "mobx";
 import gStore from "@src/store/global";
 import style from "./index.less";
 
@@ -19,14 +18,13 @@ const getBase64 = file =>
 export default props => {
     const {
         onChange = () => {},
-        customRequest,
         afterUpload = () => {},
         afterRemove = () => {},
         fileSize = 50,
         fileType,
         listType = "text",
         maxCount = Number.MAX_VALUE,
-        fileList = [],
+        fileList = null,
         value: formValue,
         id,
         btnText = "文件上传",
@@ -34,6 +32,7 @@ export default props => {
         action,
         data,
         method = "post",
+        headers,
         ...other
     } = props;
 
@@ -41,6 +40,10 @@ export default props => {
 
     const store = useLocalStore(() => {
         return { fileList: [] };
+    });
+
+    autorun(() => {
+        onChange?.(toJS(store.fileList).length ? toJS(store.fileList) : null);
     });
 
     useEffect(() => {
@@ -66,7 +69,6 @@ export default props => {
      * @param option antd 返回参数
      */
     const uploadFun = async option => {
-        console.log(option);
         loading &&
             (gStore.g_loading = {
                 visible: true,
@@ -78,94 +80,58 @@ export default props => {
         formdata.append("file", option.file);
         data && formdata.append("data", data);
 
-        if (customRequest) {
-            await customRequest(option);
+        try {
+            const res = await axios({
+                method: method,
+                url: action || window.location,
+                data: formdata,
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    ...headers
+                }
+            });
+
+            let file = {
+                lastModified: option.file.lastModified,
+                name: option.file.name,
+                size: option.file.size,
+                type: option.file.type,
+                uid: option.file.uid,
+                thumbUrl: listType != "text" && (await getBase64(option.file)),
+                uploadRes: res
+            };
+
+            const _file = await afterUpload(toJS(file));
+
+            _file && (file = { ...file, ..._file });
+
+            if (!fileList) {
+                if (maxCount && store.fileList.length < maxCount) {
+                    store.fileList = [...store.fileList, { ...file }];
+                } else {
+                    store.fileList = [...store.fileList.slice(0, maxCount - 1), { ...file }];
+                }
+            }
+
+            message.success("上传成功");
+
             loading &&
                 (gStore.g_loading = {
                     visible: false,
                     text: ""
                 });
-            return;
-        }
-
-        if (action) {
-            try {
-                const res = await axios({
-                    method: method,
-                    url: action,
-                    data: formdata,
-                    headers: { "Content-Type": "multipart/form-data" }
+        } catch (err) {
+            loading &&
+                (gStore.g_loading = {
+                    visible: false,
+                    text: ""
                 });
-                const file = {
-                    name: option.file.name,
-                    // uid: res.data_id
-                    thumbUrl: await getBase64(option.file)
-                    // url: filePrev(res.data_id)
-                };
-                console.log(file);
-                message.success("上传成功");
-                store.fileList = [...store.fileList, file];
-                loading &&
-                    (gStore.g_loading = {
-                        visible: false,
-                        text: ""
-                    });
-            } catch (err) {
-                loading &&
-                    (gStore.g_loading = {
-                        visible: false,
-                        text: ""
-                    });
-            }
-            return;
         }
-
-        // console.log(123456, option);
-
-        // // 发送ajax请求
-        // loading &&
-        //     (gStore.g_loading = {
-        //         visible: true,
-        //         text: "文件上传中..."
-        //     });
-        // // const res = await upload(fileUploadType, formdata);
-        // loading &&
-        //     (gStore.g_loading = {
-        //         visible: false,
-        //         text: ""
-        //     });
-        // const file = {
-        //     name: option.file.name
-        //     // uid: res.data_id
-        //     // thumbUrl: filePrev(res.data_id),
-        //     // url: filePrev(res.data_id)
-        // };
-
-        // onChange?.([...toJS(store.fileList), { ...file, ...res }]);
-        // afterUpload?.({ ...file, ...res }, store.fileList);
-
-        // if (!fileList) {
-        //     if (maxCount && store.fileList.length < maxCount) {
-        //         store.fileList = [...store.fileList, { ...file }];
-        //     } else {
-        //         store.fileList = [...store.fileList.slice(0, maxCount - 1), { ...file }];
-        //     }
-        // }
     };
 
     const onRemove = file => {
-        // onChange?.(undefined);
-        // afterRemove?.(file);
-        // if (!fileList) {
-        //     store.fileList = [...store.fileList.filter(v => v.uid != file.uid)];
-        // }
-    };
-
-    const change = ({ file, fileList, event }) => {
-        // console.log(file);
-        // console.log(fileList);
-        // console.log(event);
-        // onChange();
+        store.fileList = [...store.fileList.filter(v => v.uid != file.uid)];
+        afterRemove?.(file);
     };
 
     return (
@@ -178,13 +144,13 @@ export default props => {
                 return (
                     <div id={id}>
                         <Upload
+                            {...other}
                             className={cls}
                             onRemove={onRemove}
                             listType={listType}
                             fileList={store.fileList}
                             customRequest={uploadFun}
-                            onChange={change}
-                            {...other}
+                            withCredentials
                         >
                             {listType == "text" || listType == "picture" ? (
                                 <Button>
