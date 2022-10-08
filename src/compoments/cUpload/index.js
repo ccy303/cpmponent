@@ -78,8 +78,11 @@ export default props => {
         await vailArrFun(option.file);
         const formdata = new FormData();
         formdata.append("file", option.file);
-        data && formdata.append("data", data);
-
+        if (data) {
+            for (let key in data) {
+                formdata.append(key, data[key]);
+            }
+        }
         try {
             const res = await axios({
                 method: method,
@@ -150,7 +153,6 @@ export default props => {
                             listType={listType}
                             fileList={store.fileList}
                             customRequest={uploadFun}
-                            withCredentials
                         >
                             {listType == "text" || listType == "picture" ? (
                                 <Button>

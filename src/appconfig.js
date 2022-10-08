@@ -1,5 +1,5 @@
 import React from "react";
-import { NoAuth, Load, CLayout, useAxios } from "@src/index.js";
+import { NoAuth, Load, CLayout } from "@src/index.js";
 
 export default {
     rootPath: "/home", // 跟路由
@@ -55,7 +55,7 @@ export default {
         appTitle: <span>金服管理后台脚手架3.0</span>,
         userInfoDataIndex: "phone", // 展示数据字段,不存在显示 -
         // userInfoDom: props => {}, // 自定义用户信息渲染，不可和userInfoDataIndex公用，props含全部数据
-        logoutFun: props => {} // 登出函数props含全部数据
+        logoutFun: props => {} // 登出函数props含`全部数据
     },
     // 路由列表
     routes: [
@@ -67,9 +67,9 @@ export default {
         },
         {
             path: "/home",
-            title: "一级路由",
+            title: "基础组件",
             menu: false,
-            component: Load(() => import("./pages/page2"))
+            component: Load(() => import("./pages/home"))
         },
         {
             title: "工作台",
@@ -80,11 +80,11 @@ export default {
             breadcrumb: false,
             children: [
                 {
-                    path: "/one",
-                    title: "一级路由",
+                    path: "/base_comp_1",
+                    title: "基础组件（一）",
                     menu: true,
                     logined: true,
-                    component: Load(() => import("./pages/page3")),
+                    component: Load(() => import("./pages/baseComp_1")),
                     breadcrumb: [
                         {
                             path: "",
@@ -110,20 +110,20 @@ export default {
                     ]
                 },
                 {
-                    title: "二级路由集合",
+                    title: "基础组件（二）",
                     menu: true,
-                    path: "/singlePage",
+                    path: "/base_comp_2",
                     logined: true,
                     children: [
                         {
-                            path: "/page1",
+                            path: "/form",
                             title: "form表单",
                             menu: true,
                             component: Load(() => import("./pages/page4"))
                         },
                         {
-                            path: "/page2",
-                            title: "图片",
+                            path: "/tablelist",
+                            title: "tableList",
                             menu: true,
                             component: Load(() => import("./pages/page1"))
                         }
@@ -144,7 +144,7 @@ export default {
                                     path: "/page1",
                                     title: "三级路由",
                                     menu: true,
-                                    component: Load(() => import("./pages/page2"))
+                                    component: Load(() => import("./pages/baseComp_1"))
                                 }
                             ]
                         }
@@ -161,14 +161,14 @@ export default {
                             path: "/page1",
                             title: "列表",
                             menu: true,
-                            component: Load(() => import("./pages/page3"))
+                            component: Load(() => import("./pages/baseComp_1"))
                         },
                         {
                             path: "/page1/:id",
                             title: "二级路由1",
                             activePath: "/admin/noMenuRoute/page1",
                             menu: false,
-                            component: Load(() => import("./pages/page3"))
+                            component: Load(() => import("./pages/baseComp_1"))
                         }
                     ]
                 },

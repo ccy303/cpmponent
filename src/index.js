@@ -68,5 +68,7 @@ export { default as NoAuth } from "@compoments/noAuth";
 export { default as Load } from "@compoments/loadable";
 export { default as CLayout } from "@compoments/layout";
 export { default as CUpload } from "@compoments/cUpload";
+export { default as CHeader } from "@compoments/header";
+export { default as IdCard } from "@compoments/idCard";
 
 export { useAxios } from "@compoments/hook";

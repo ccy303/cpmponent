@@ -1,11 +1,22 @@
 import React, { useEffect } from "react";
 import { useLocalStore, Observer } from "mobx-react-lite";
 import { toJS } from "mobx";
-import CUpload from "@base/cUpload";
+import CUpload from "@compoments/cUpload";
 import style from "./index.less";
 
 export default props => {
-    const { onChange = () => {}, value, disabled, id, fileUploadType = [] } = props;
+    const {
+        onChange = () => {},
+        value,
+        disabled,
+        id,
+        fileType = ["jpg", "png"],
+        fileSize = 10,
+        action,
+        method = "post",
+        data,
+        headers
+    } = props;
     const store = useLocalStore(() => {
         return { list: [] };
     });
@@ -31,6 +42,8 @@ export default props => {
     return (
         <Observer>
             {() => {
+                const _action =
+                    Object.prototype.toString.call(action) == "[object String]" ? [action] : action;
                 return (
                     <div className={style["id-card"]} id={id}>
                         <div className={`${style["id-card-item"]} ${style["m-r-20"]}`}>
@@ -40,14 +53,17 @@ export default props => {
                                         ? [store.list[0]]
                                         : []
                                 }
-                                fileUploadType={fileUploadType[0]}
+                                action={_action?.[0] || window.location}
+                                data={data?.[0] || data}
                                 afterUpload={file => onFileChange(file, 0)}
                                 afterRemove={() => onFileRemove(0)}
                                 listType='picture-card'
                                 maxCount={1}
                                 disabled={disabled}
-                                fileSize={10}
-                                fileType={["jpg", "png"]}
+                                fileSize={fileSize}
+                                fileType={fileType}
+                                method={method}
+                                headers={headers?.[0] || headers}
                             />
                             <p>身份证正面</p>
                         </div>
@@ -58,14 +74,17 @@ export default props => {
                                         ? [store.list[1]]
                                         : []
                                 }
-                                fileUploadType={fileUploadType[1]}
+                                action={_action?.[1] || _action?.[0] || window.location}
+                                data={data?.[1] || data?.[0] || data}
                                 afterUpload={file => onFileChange(file, 1)}
                                 afterRemove={() => onFileRemove(1)}
                                 listType='picture-card'
                                 maxCount={1}
                                 disabled={disabled}
-                                fileSize={10}
-                                fileType={["jpg", "png"]}
+                                fileSize={fileSize}
+                                fileType={fileType}
+                                method={method}
+                                headers={headers?.[1] || headers?.[0] || headers}
                             />
                             <p>身份证反面</p>
                         </div>
