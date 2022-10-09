@@ -196,7 +196,6 @@ const TableList = React.forwardRef((props, ref) => {
         if (!!out.change2search) {
             const _onValuesChange = out.onValuesChange;
             out.onValuesChange = async e => {
-                console.log(e);
                 const [key] = Object.keys(e);
                 const data = await form.validateFields();
                 _onValuesChange?.(data);
