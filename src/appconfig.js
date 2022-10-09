@@ -123,9 +123,9 @@ export default {
                         },
                         {
                             path: "/tablelist",
-                            title: "tableList",
+                            title: "查询列表",
                             menu: true,
-                            component: Load(() => import("./pages/page1"))
+                            component: Load(() => import("./pages/tableList"))
                         }
                     ]
                 },

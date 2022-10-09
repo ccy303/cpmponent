@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Layout, Button, CHeader, CLayout } from "@src/index.js";
+import { Layout, Button, CHeader } from "@src/index.js";
 import style from "./index.less";
 export default props => {
     return (
@@ -34,7 +34,7 @@ export default props => {
                             0搭建，开发即需求
                         </p>
                         <p style={{ textAlign: "center", marginTop: "10px" }}>
-                            <Link to='/admin/base_comp'>
+                            <Link to='/admin/base_comp_1'>
                                 <Button type='primary'>前往工作台</Button>
                             </Link>
                         </p>

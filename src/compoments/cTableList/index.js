@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState, useImperativeHandle } from "react";
 import CForm from "./../cForm";
-import { Table, Button } from "antd";
 import { useLocalStore, Observer } from "mobx-react-lite";
-import { autorun, runInAction } from "mobx";
-import axios from "@src/http/http.js";
-import { useLocation } from "react-router-dom";
+import { runInAction } from "mobx";
 import qs from "qs";
 import { copy } from "copy-anything";
-import { replaceUrl } from "@src/utils";
+import { Table, Button, useAxios } from "@src/index.js";
+import { replaceUrl } from "@tools";
 import style from "./index.less";
 const useTable = (table = {}) => {
     const tableRef = useRef(table);
@@ -31,7 +29,9 @@ const TableWarp = React.memo(props => {
         table.reload = () => {
             forceUpdate(parseInt(Math.random() * 100000));
         };
-        table.handleSearch = ref.current.handleSearch;
+        table.customSearch = ref.current.customSearch;
+        table.setFormValues = ref.current.setFormValues;
+        table.getFormValues = ref.current.getFormValues;
     }, [table]);
 
     return <TableList key={key} {...other} ref={ref} />;
@@ -39,33 +39,40 @@ const TableWarp = React.memo(props => {
 
 const TableList = React.forwardRef((props, ref) => {
     const {
-        queryToUrk = true,
         resetBtn = true,
         submitBtn = true,
         showIndex = true,
         search = {},
         columns = [],
-        dataSource = [],
+        dataSource = null,
         pagination = {},
+        queryToUrl = true,
         requestCfg,
+        toolBar = null,
         ...other
     } = props;
+
+    const axios = useAxios();
 
     const query = qs.parse(location.hash.split("?")[1], { ignoreQueryPrefix: true });
 
     const store = useLocalStore(() => ({
         ...__INTTSTORE__,
         pageSize:
-            query.per_page ||
+            (queryToUrl ? query.per_page : false) ||
             pagination.defaultPageSize ||
             pagination.pageSize ||
             __INTTSTORE__.pageSize,
-        page: query.page || pagination.page || pagination.page || __INTTSTORE__.page
+        page:
+            (queryToUrl ? query.page : false) ||
+            pagination.page ||
+            pagination.page ||
+            __INTTSTORE__.page
     }));
 
     useImperativeHandle(ref, () => {
         return {
-            handleSearch: async () => {
+            customSearch: async () => {
                 getData({
                     ...form.getFieldsValue(),
                     page: 1,
@@ -75,19 +82,29 @@ const TableList = React.forwardRef((props, ref) => {
                     store.page = 1;
                     store.pageSize = 10;
                 });
+            },
+            setFormValues: (params, reGetData = false) => {
+                form.setFieldsValue(params, true);
+                reGetData &&
+                    setTimeout(() => {
+                        getData(form.getFieldsValue());
+                    });
+            },
+            getFormValues: names => {
+                return form.getFieldsValue(names || []);
             }
         };
     });
 
     const [form] = CForm.useForm();
 
-    const _location = useLocation();
-
     useEffect(() => {
-        runInAction(() => {
-            store.total = dataSource.length;
-            store.data = dataSource;
-        });
+        dataSource &&
+            runInAction(() => {
+                store.total = dataSource.length;
+                store.data = dataSource;
+                store.loading = false;
+            });
     }, [dataSource]);
 
     const getData = async _params => {
@@ -114,17 +131,22 @@ const TableList = React.forwardRef((props, ref) => {
             store.total = total;
             store.data = data;
         });
-        replaceUrl(
-            `#${_location.pathname}${qs.stringify(
-                { ...query, ...params },
-                { addQueryPrefix: true }
-            )}`,
-            true
-        );
+        queryToUrl &&
+            replaceUrl(
+                `#${location.hash.replaceAll(/#|(\?.*)/g, "")}${qs.stringify(
+                    { ...(queryToUrl ? query : {}), ...params },
+                    { addQueryPrefix: true }
+                )}`,
+                true
+            );
     };
 
     const onSearch = async () => {
         const data = await form.validateFields();
+        runInAction(() => {
+            store.pageSize = __INTTSTORE__.pageSize;
+            store.page = __INTTSTORE__.page;
+        });
         getData(data);
     };
 
@@ -166,14 +188,18 @@ const TableList = React.forwardRef((props, ref) => {
                 </div>
             )
         });
+
         out.submitBtn = false;
-        out.initialValues = { ...query };
+
+        queryToUrl && (out.initialValues = { ...query });
+
         if (!!out.change2search) {
             const _onValuesChange = out.onValuesChange;
             out.onValuesChange = async e => {
+                console.log(e);
                 const [key] = Object.keys(e);
                 const data = await form.validateFields();
-                _onValuesChange?.();
+                _onValuesChange?.(data);
                 !out?.ignoreC2SNamePath?.includes(key) &&
                     getData({ ...data, per_page: 10, page: 1 });
                 runInAction(() => {
@@ -215,20 +241,22 @@ const TableList = React.forwardRef((props, ref) => {
     };
 
     useEffect(() => {
-        getData({
-            ...form.getFieldsValue(),
-            page: store.page,
-            per_page: store.pageSize
-        });
-    });
+        !dataSource &&
+            getData({
+                ...form.getFieldsValue(),
+                page: store.page,
+                per_page: store.pageSize
+            });
+    }, []);
 
     return (
         <>
-            {!!search && (
-                <div className={style["form-warp"]}>
+            {!!search && !dataSource && (
+                <div className={style["form-warp"]} style={{ padding: toolBar ? "0" : "0 0 10px" }}>
                     <CForm {...{ autoSetForm: false, form, ...getBtnCol(search) }} />
                 </div>
             )}
+            {toolBar && <div className={style["tool-bar"]}>{toolBar}</div>}
             <Observer>
                 {() => {
                     return (
@@ -256,11 +284,12 @@ const TableList = React.forwardRef((props, ref) => {
                                             store.page = page;
                                             store.pageSize = pageSize;
                                         });
-                                        getData({
-                                            ...form.getFieldsValue(),
-                                            page: page,
-                                            per_page: pageSize
-                                        });
+                                        !dataSource &&
+                                            getData({
+                                                ...form.getFieldsValue(),
+                                                page: page,
+                                                per_page: pageSize
+                                            });
                                     },
                                     size: "default",
                                     ...pagination

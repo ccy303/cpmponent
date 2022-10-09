@@ -3,6 +3,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const ESLintPlugin = require("eslint-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 // const TerserPlugin = require("terser-webpack-plugin");
 // const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const handler = (percentage, message, ...args) => {
@@ -125,6 +126,14 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: "./public/template.html",
             filename: "index.html"
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.join(__dirname, "./src/data"),
+                    to: path.join(__dirname, "./dist/data")
+                }
+            ]
         }),
         new CleanWebpackPlugin({ verbose: true }),
         new ESLintPlugin({})

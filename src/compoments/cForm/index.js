@@ -68,7 +68,7 @@ const FormItem = React.memo(cfg => {
 const CForm = React.memo(props => {
     const {
         autoSetForm = true,
-        items,
+        items = [],
         submitBtn = true,
         cForm = Object.keys(formStore.forms).length,
         dtl,
