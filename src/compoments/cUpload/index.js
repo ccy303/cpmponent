@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
-import { Upload, Button, message, useAxios } from "@src/index.js";
+import { Upload, Button, message } from "@compoments/antd";
+import { useAxios } from "@compoments/hook";
 import { file as fileValid } from "@tools/valid";
 import { VerticalAlignTopOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import { useLocalStore, Observer } from "mobx-react-lite";
-import { toJS, autorun } from "mobx";
+import { toJS } from "mobx";
 import gStore from "@src/store/global";
 import style from "./index.less";
 
@@ -32,6 +33,7 @@ export default props => {
         action,
         data,
         method = "post",
+        textListflex = false,
         headers,
         ...other
     } = props;
@@ -40,10 +42,6 @@ export default props => {
 
     const store = useLocalStore(() => {
         return { fileList: [] };
-    });
-
-    autorun(() => {
-        onChange?.(toJS(store.fileList).length ? toJS(store.fileList) : null);
     });
 
     useEffect(() => {
@@ -116,6 +114,8 @@ export default props => {
                 }
             }
 
+            onChange?.(toJS(store.fileList));
+
             message.success("上传成功");
 
             loading &&
@@ -134,6 +134,7 @@ export default props => {
 
     const onRemove = file => {
         store.fileList = [...store.fileList.filter(v => v.uid != file.uid)];
+        onChange?.(toJS(store.fileList));
         afterRemove?.(file);
     };
 
@@ -142,8 +143,8 @@ export default props => {
             {() => {
                 const cls =
                     maxCount == store.fileList.length
-                        ? `${style.upload} ${style["max-count"]}`
-                        : style.upload;
+                        ? `${style[`upload-${textListflex ? "flex" : ""}`]} ${style["max-count"]}`
+                        : style[`upload-${textListflex ? "flex" : ""}`];
                 return (
                     <div id={id}>
                         <Upload

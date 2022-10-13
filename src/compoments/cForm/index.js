@@ -16,18 +16,25 @@ export const holderFun = (type, text) => {
     if (type == "rangeDataPicker") {
         return ["开始日期", "结束日期"];
     }
+    if (type == "rangeTimePicker") {
+        return ["开始时间", "结束时间"];
+    }
     if (type == "rate") {
         return;
     }
     return `请${
         {
             text: "输入",
+            textArea: "输入",
+            autoComplete: "输入",
             number: "输入",
             select: "选择",
             checkbox: "选择",
             datePicker: "选择",
+            timePicker: "选择",
+            cascader: "选择",
             password: "输入"
-        }[type]
+        }[type] || ""
     }${text}`;
 };
 
@@ -38,17 +45,18 @@ const FormItem = React.memo(cfg => {
             return dom;
         }
         const Com = dtl ? ItemText : FormInt[type];
+        const _props = {
+            placeholder: holderFun(type, cfg.label),
+            dtl,
+            ...props
+        };
+
+        !["number", "textArea", "checkbox", "radio", "rate", "switch", "slider"].includes(type) &&
+            (_props.allowClear = true);
 
         return (
             <Form.Item {...other}>
-                <Com
-                    {...{
-                        allowClear: true,
-                        placeholder: holderFun(type, cfg.label),
-                        dtl,
-                        ...props
-                    }}
-                />
+                <Com {..._props} />
             </Form.Item>
         );
     };

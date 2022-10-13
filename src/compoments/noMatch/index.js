@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Button } from "@src/index.js";
+import { Button } from "@compoments/antd";
 import style from "./styles.less";
 
 const NoMatch = props => {

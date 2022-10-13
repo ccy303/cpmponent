@@ -64,16 +64,3 @@ export { default as TreeSelect } from "@compoments/antd/treeSelect";
 export { default as Typography } from "@compoments/antd/typography";
 export { default as Upload } from "@compoments/antd/upload";
 export { default as version } from "@compoments/antd/version";
-
-export { default as NoAuth } from "@compoments/noAuth";
-export { default as Load } from "@compoments/loadable";
-export { default as CLayout } from "@compoments/layout";
-export { default as CUpload } from "@compoments/cUpload";
-export { default as CHeader } from "@compoments/header";
-export { default as IdCard } from "@compoments/idCard";
-export { default as CTableList } from "@compoments/cTableList";
-export { default as CForm } from "@compoments/cForm";
-export { default as CModal } from "@compoments/cModal";
-export { default as Sms } from "@compoments/sms";
-
-export { useAxios } from "@compoments/hook";

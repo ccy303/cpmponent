@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { Button, Input, Space, message, useAxios } from "@src/index.js";
+import { Button, Input, Space, message } from "@compoments/antd";
+import { useAxios } from "@compoments/hook";
 import { useLocalStore, Observer } from "mobx-react-lite";
 import { runInAction } from "mobx";
 let TIMER = null;

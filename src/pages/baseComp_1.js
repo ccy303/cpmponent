@@ -1,6 +1,5 @@
 import React from "react";
-import Sms from "@compoments/sms";
-import { Row, Col, CUpload, Divider, IdCard } from "@src/index.js";
+import { Sms, Row, Col, CUpload, Divider, IdCard } from "@src/index.js";
 import style from "./index.less";
 export default props => {
     return (

@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { AppContext } from "@compoments/appProvider/appContext";
-import { message } from "@src/index.js";
+import { message } from "@compoments/antd";
 import axios from "axios";
 
 export const useAxios = cfg => {

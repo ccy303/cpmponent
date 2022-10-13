@@ -3,7 +3,7 @@ import { NoAuth, Load, CLayout } from "@src/index.js";
 
 export default {
     rootPath: "/home", // 跟路由
-    sliderTheme: "dark", // 侧边菜单主题
+    sliderTheme: "dark", // 侧边菜单主题 dark or light
     // 框架会自动抛出错误信息和message提示，不会处理成功提示，http请求定义时，通过 header 设置 NO-E-MSG：true/false 配置是否由框架提示错误信息
     httpCfg: {
         axiosCfg: {}, // axios 配置
@@ -119,59 +119,65 @@ export default {
                             path: "/form",
                             title: "form表单",
                             menu: true,
-                            component: Load(() => import("./pages/page4"))
+                            component: Load(() => import("./pages/form"))
                         },
                         {
                             path: "/tablelist",
                             title: "查询列表",
                             menu: true,
                             component: Load(() => import("./pages/tableList"))
-                        }
-                    ]
-                },
-                {
-                    path: "/multistage",
-                    title: "三级路由集合",
-                    menu: true,
-                    logined: true,
-                    children: [
-                        {
-                            path: "/page",
-                            title: "二级路由",
-                            menu: true,
-                            children: [
-                                {
-                                    path: "/page1",
-                                    title: "三级路由",
-                                    menu: true,
-                                    component: Load(() => import("./pages/baseComp_1"))
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    title: "非菜单路由",
-                    menu: true,
-                    path: "/noMenuRoute",
-                    breadcrumb: false,
-                    logined: true,
-                    children: [
-                        {
-                            path: "/page1",
-                            title: "列表",
-                            menu: true,
-                            component: Load(() => import("./pages/baseComp_1"))
                         },
                         {
-                            path: "/page1/:id",
-                            title: "二级路由1",
-                            activePath: "/admin/noMenuRoute/page1",
-                            menu: false,
-                            component: Load(() => import("./pages/baseComp_1"))
+                            path: "/modal",
+                            title: "弹窗",
+                            menu: true,
+                            component: Load(() => import("./pages/modal"))
                         }
                     ]
                 },
+                // {
+                //     path: "/multistage",
+                //     title: "三级路由集合",
+                //     menu: true,
+                //     logined: true,
+                //     children: [
+                //         {
+                //             path: "/page",
+                //             title: "二级路由",
+                //             menu: true,
+                //             children: [
+                //                 {
+                //                     path: "/page1",
+                //                     title: "三级路由",
+                //                     menu: true,
+                //                     component: Load(() => import("./pages/baseComp_1"))
+                //                 }
+                //             ]
+                //         }
+                //     ]
+                // },
+                // {
+                //     title: "非菜单路由",
+                //     menu: true,
+                //     path: "/noMenuRoute",
+                //     breadcrumb: false,
+                //     logined: true,
+                //     children: [
+                //         {
+                //             path: "/page1",
+                //             title: "列表",
+                //             menu: true,
+                //             component: Load(() => import("./pages/baseComp_1"))
+                //         },
+                //         {
+                //             path: "/page1/:id",
+                //             title: "二级路由1",
+                //             activePath: "/admin/noMenuRoute/page1",
+                //             menu: false,
+                //             component: Load(() => import("./pages/baseComp_1"))
+                //         }
+                //     ]
+                // },
                 {
                     path: "/auth",
                     title: "权限路由",

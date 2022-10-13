@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLocalStore, Observer } from "mobx-react-lite";
-import { Menu } from "antd";
+import { Menu } from "@compoments/antd";
 import { checkAuth, getRouteByPath, initRouteAttrbutes } from "@tools/index";
 import { AppContext } from "@compoments/appProvider/appContext";
 import style from "./styles.less";

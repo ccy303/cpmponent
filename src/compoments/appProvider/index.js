@@ -1,7 +1,7 @@
 import React from "react";
 import { AppContext } from "./appContext";
 import zhCN from "antd/lib/locale/zh_CN";
-import { ConfigProvider as AntdConfigProvider } from "@src/index.js";
+import { ConfigProvider as AntdConfigProvider } from "@compoments/antd";
 
 const antdDefaultConfig = {
     prefixCls: "linkfin",

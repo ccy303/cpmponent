@@ -3,7 +3,7 @@ import { useLocalStore, Observer } from "mobx-react-lite";
 import { observable } from "mobx";
 import ReactDOM from "react-dom";
 import zhCN from "antd/lib/locale/zh_CN";
-import { Modal, ConfigProvider } from "antd";
+import { Modal, ConfigProvider } from "@compoments/antd";
 
 const store = observable(
     {
@@ -137,10 +137,6 @@ CModal.confirm = props => {
     };
 
     ReactDOM.render(<Comfirm />, dom);
-};
-
-export const useCModal = () => {
-    return CModal;
 };
 
 export default CModal;

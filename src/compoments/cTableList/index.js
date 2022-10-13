@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState, useImperativeHandle } from "react";
-import CForm from "./../cForm";
 import { useLocalStore, Observer } from "mobx-react-lite";
 import { runInAction } from "mobx";
 import qs from "qs";
 import { copy } from "copy-anything";
-import { Table, Button, useAxios } from "@src/index.js";
+import { Table, Button } from "@compoments/antd";
+import CForm from "@compoments/cForm";
+import { useAxios } from "@compoments/hook";
 import { replaceUrl } from "@tools";
 import style from "./index.less";
 const useTable = (table = {}) => {

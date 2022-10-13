@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
-import Header from "../header";
-import Menu from "../menu";
-import { Layout, Breadcrumb, Spin } from "@src/index.js";
+import Header from "@compoments/header";
+import Menu from "@compoments/menu";
+import { Layout, Breadcrumb, Spin } from "@compoments/antd";
 import { Outlet, useLocation, Link } from "react-router-dom";
 import { Observer, useLocalStore, observer } from "mobx-react-lite";
 import { getBread, getRouteByPath } from "@tools/index";
