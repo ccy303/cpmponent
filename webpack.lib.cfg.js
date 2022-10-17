@@ -1,27 +1,40 @@
 const path = require("path");
 const webpack = require("webpack");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const ESLintPlugin = require("eslint-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-// const TerserPlugin = require("terser-webpack-plugin");
-// const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const handler = (percentage, message, ...args) => {
     console.info(`${(percentage * 100).toFixed(2)}%`, message, ...args);
 };
 module.exports = {
-    mode: "development",
+    mode: "production",
     target: ["web", "es5"],
-    entry: {
-        app: ["./src/index.dev.js"]
-    },
+    entry: "./src/index.js",
     output: {
-        path: path.join(__dirname, "./dist"), // 出口目录，dist文件
+        path: path.join(__dirname, "./lib"), // 出口目录，dist文件
         publicPath: "/",
-        filename: "js/[name].js",
-        chunkFilename: "js/[name].chunk.js"
+        filename: "[name].js",
+        library: "LCompoments",
+        libraryTarget: "umd"
     },
-    devtool: "cheap-module-source-map",
+    // devtool: "cheap-module-source-map",
+    externals: {
+        react: {
+            commonjs: "react",
+            commonjs2: "react",
+            amd: "react",
+            root: "React"
+        },
+        "react-dom": {
+            commonjs: "react-dom",
+            commonjs2: "react-dom",
+            amd: "react-dom",
+            root: "ReactDOM"
+        }
+    },
     module: {
         rules: [
             {
@@ -33,7 +46,8 @@ module.exports = {
                     {
                         test: /\.css$/,
                         use: [
-                            "style-loader",
+                            MiniCssExtractPlugin.loader,
+                            // "style-loader",
                             {
                                 loader: "css-loader",
                                 options: {
@@ -60,7 +74,8 @@ module.exports = {
                     {
                         test: /\.less$/,
                         use: [
-                            "style-loader",
+                            MiniCssExtractPlugin.loader,
+                            // "style-loader",
                             {
                                 loader: "css-loader",
                                 options: {
@@ -111,32 +126,20 @@ module.exports = {
                     },
                     {
                         test: /\.(png|svg|jpg|jpeg|gif)$/i,
-                        type: "asset",
-                        generator: {
-                            filename: "asset/[hash][ext][query]"
-                        }
+                        type: "asset/inline"
                     }
                 ]
             }
         ]
     },
     plugins: [
-        // new BundleAnalyzerPlugin()
-        new webpack.ProgressPlugin(handler),
-        new HtmlWebpackPlugin({
-            template: "./public/template.html",
-            filename: "index.html"
-        }),
-        new CopyWebpackPlugin({
-            patterns: [
-                {
-                    from: path.join(__dirname, "./src/data"),
-                    to: path.join(__dirname, "./dist/data")
-                }
-            ]
-        }),
         new CleanWebpackPlugin({ verbose: true }),
+        new MiniCssExtractPlugin({
+            // filename: "compoments.min.css"
+        }),
+        new webpack.ProgressPlugin(handler),
         new ESLintPlugin({})
+        // new BundleAnalyzerPlugin()
     ],
     resolve: {
         // 自动补全后缀，注意第一个必须是空字符串,后缀一定以点开头
@@ -149,28 +152,16 @@ module.exports = {
             "@assets": path.resolve(__dirname, "./src/assets")
         }
     },
-    // optimization: {
-    //     minimizer: [
-    //         new CssMinimizerPlugin(),
-    //         new TerserPlugin({
-    //             parallel: true
-    //         })
-    //         // new CompressionPlugin()
-    //     ],
-    //     splitChunks: {
-    //         chunks: "all"
-    //     }
-    // },
-    devServer: {
-        port: 8881, // 端口
-        host: "localhost",
-        hot: true,
-        devMiddleware: {
-            writeToDisk: true
-        },
-        client: {
-            progress: true
-        },
-        proxy: {}
+    optimization: {
+        minimizer: [
+            new CssMinimizerPlugin(),
+            new TerserPlugin({
+                parallel: true,
+                extractComments: false
+            })
+        ],
+        splitChunks: {
+            chunks: "all"
+        }
     }
 };

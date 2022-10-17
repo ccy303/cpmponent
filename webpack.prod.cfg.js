@@ -12,11 +12,12 @@ const handler = (percentage, message, ...args) => {
 };
 module.exports = {
     mode: "production",
+    target: ["web", "es5"],
     entry: {
-        app: "./src/index.js"
+        app: "./src/index.dev.js"
     },
     output: {
-        path: path.join(__dirname, "../dist"), // 出口目录，dist文件
+        path: path.join(__dirname, "./dist"), // 出口目录，dist文件
         publicPath: "/",
         filename: "js/[name].[chunkhash].js",
         chunkFilename: "js/[name].chunk.[chunkhash].js"
@@ -124,11 +125,11 @@ module.exports = {
     resolve: {
         extensions: [".js", ".json", ".css"],
         alias: {
-            "@root": path.resolve(__dirname, "../"),
-            "@src": path.resolve(__dirname, "../", "src"),
-            "@base": path.resolve(__dirname, "../src/components/basic"),
-            "@utils": path.resolve(__dirname, "../src/utils"),
-            "@images": path.resolve(__dirname, "../src/images")
+            "@root": path.resolve(__dirname, "./"),
+            "@src": path.resolve(__dirname, "./src"),
+            "@compoments": path.resolve(__dirname, "./src/compoments"),
+            "@tools": path.resolve(__dirname, "./src/tools"),
+            "@assets": path.resolve(__dirname, "./src/assets")
         }
     },
     plugins: [
@@ -137,7 +138,15 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: "./public/template.html",
             filename: "index.html",
-            favicon: "./favicon.ico",
+            favicon: "./favicon.ico"
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.join(__dirname, "./src/data"),
+                    to: path.join(__dirname, "./dist/data")
+                }
+            ]
         }),
         new CleanWebpackPlugin({ verbose: true }),
         new MiniCssExtractPlugin({
@@ -149,9 +158,9 @@ module.exports = {
         minimizer: [
             new CssMinimizerPlugin(),
             new TerserPlugin({
-                parallel: true
+                parallel: true,
+                extractComments: false
             })
-            // new CompressionPlugin()
         ],
         splitChunks: {
             chunks: "all"
